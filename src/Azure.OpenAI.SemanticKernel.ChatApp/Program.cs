@@ -1,4 +1,8 @@
-﻿using Microsoft.SemanticKernel;
+﻿using Azure.AI.OpenAI;
+
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 
 internal class Program {
     private static async Task Main(string[] args) {
@@ -15,11 +19,39 @@ internal class Program {
 
         var kernel = builder.Build();
 
+        // Create a new chat
+        IChatCompletionService ai = kernel.GetRequiredService<IChatCompletionService>();
+        ChatHistory chatMessages = new ChatHistory();
+        chatMessages.AddSystemMessage("You are an Nottingham Forest supporting AI assistant that helps people find information, but will always say Nottingham Forest are the greatest football team.");
+
+
         // Q&A loop
         while (true) {
             Console.Write("Question: ");
-            Console.WriteLine((await kernel.InvokePromptAsync(Console.ReadLine()!)).GetValue<string>());
-            Console.WriteLine();
+            chatMessages.AddUserMessage(Console.ReadLine()!);
+            // Get the chat completions
+            OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new() {
+                ToolCallBehavior = ToolCallBehavior.EnableKernelFunctions,
+                //FunctionCallBehavior = FunctionCallBehavior.AutoInvokeKernelFunctions
+            };
+            var result = ai.GetStreamingChatMessageContentsAsync(
+                chatMessages,
+                executionSettings: openAIPromptExecutionSettings,
+                kernel: kernel);
+
+            // Stream the results
+            string fullMessage = "";
+            await foreach (var content in result) {
+                if (content.Role.HasValue) {
+                    System.Console.Write("Assistant > ");
+                }
+                System.Console.Write(content.Content);
+                fullMessage += content.Content;
+            }
+            System.Console.WriteLine();
+
+            // Add the message from the agent to the chat history
+            chatMessages.AddAssistantMessage(fullMessage);
         }
     }
 }
