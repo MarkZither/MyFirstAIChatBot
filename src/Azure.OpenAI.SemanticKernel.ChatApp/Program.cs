@@ -1,8 +1,11 @@
 ﻿using Azure.AI.OpenAI;
 
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
+using Microsoft.SemanticKernel.Memory;
 
 internal class Program {
     private static async Task Main(string[] args) {
@@ -15,9 +18,20 @@ internal class Program {
         //var builder = new Kernel.Builder.;
         IKernelBuilder builder = Kernel.CreateBuilder();
         //builder.Services.AddAzureOpenAIChatCompletion(aoaiModel, aoaiEndpoint, aoaiApiKey);
+        builder.Services.AddLogging(builder => builder.AddConsole());
         builder.Services.AddOpenAIChatCompletion(oaiModel, aoaiApiKey);
-
+        
         var kernel = builder.Build();
+        // Download a document and create embeddings for it
+#pragma warning disable SKEXP0011 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#pragma warning disable SKEXP0003 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+        ISemanticTextMemory memory = new MemoryBuilder()
+            .WithLoggerFactory(kernel.LoggerFactory)
+            .WithMemoryStore(new  VolatileMemoryStore())
+            .WithOpenAITextEmbeddingGeneration("TextEmbeddingAda002_1", aoaiApiKey)
+    .Build();
+#pragma warning restore SKEXP0003 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#pragma warning restore SKEXP0011 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 
         // Create a new chat
         IChatCompletionService ai = kernel.GetRequiredService<IChatCompletionService>();
