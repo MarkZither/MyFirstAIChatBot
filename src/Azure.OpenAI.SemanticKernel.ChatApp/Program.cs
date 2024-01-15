@@ -25,11 +25,13 @@ internal class Program {
         // Download a document and create embeddings for it
 #pragma warning disable SKEXP0011 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 #pragma warning disable SKEXP0003 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+#pragma warning disable SKEXP0052 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
         ISemanticTextMemory memory = new MemoryBuilder()
             .WithLoggerFactory(kernel.LoggerFactory)
             .WithMemoryStore(new  VolatileMemoryStore())
             .WithOpenAITextEmbeddingGeneration("TextEmbeddingAda002_1", aoaiApiKey)
     .Build();
+#pragma warning restore SKEXP0052 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 #pragma warning restore SKEXP0003 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 #pragma warning restore SKEXP0011 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
 

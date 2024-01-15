@@ -16,6 +16,7 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.SemanticKernel" Version="1.0.1" />
+    <PackageReference Include="Microsoft.SemanticKernel.Plugins.Memory" Version="1.0.1-alpha" />
   </ItemGroup>
 
 </Project>
